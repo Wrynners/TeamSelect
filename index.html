@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Matchday Line-up</title>
-<meta name="description" content="Pick your team, formation and bench, then share the line-up to WhatsApp.">
+<title>TeamSelect</title>
+<meta name="description" content="Pick your team, formation and subs for soccer, Gaelic football or hurling, then share it to WhatsApp.">
 <meta name="theme-color" content="#11643d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Line-up">
+<meta name="apple-mobile-web-app-title" content="TeamSelect">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -61,10 +61,10 @@ main.board{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align
 @media (max-width:920px){main.board{grid-template-columns:minmax(0,1fr)}}
 
 .pitch-col{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:0}
-.pitch{position:relative;aspect-ratio:68/100;width:min(100%,calc((100dvh - 260px)*.68));min-width:min(100%,300px);max-width:100%;border-radius:10px;overflow:hidden;
+.pitch{--pa:68/100;--pf:.68;position:relative;aspect-ratio:var(--pa);width:min(100%,calc((100dvh - 260px)*var(--pf)));min-width:min(100%,300px);max-width:100%;border-radius:10px;overflow:hidden;
   background:repeating-linear-gradient(180deg,var(--grass-a) 0 10%,var(--grass-b) 10% 20%);touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 1px 0 rgba(0,0,0,.08),0 10px 30px -14px rgba(0,0,0,.45)}
 .pitch svg.lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.pitch .attack{position:absolute;top:8px;left:10px;font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);pointer-events:none}
+.pitch .attack{position:absolute;left:10px;font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);pointer-events:none}
 
 .tok{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;width:26%;touch-action:none;cursor:grab;z-index:2}
 .tok .disc,.bench-slot .disc,.ghost .disc{width:clamp(38px,52%,62px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:clamp(17px,2.4vw,24px);
@@ -140,6 +140,7 @@ aside.panel{background:var(--surface);border:1px solid var(--line);border-radius
 .seg button{flex:1;border:0;background:var(--surface);padding:12px 4px;font-family:var(--display);font-weight:600;font-size:18px}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+@media (max-width:520px){.hide-narrow{display:none}.seg button{font-size:16px}}
 .sheet-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 .share-img{width:100%;border-radius:10px;border:1px solid var(--line);background:var(--surface-2)}
 .share-msg{white-space:pre-wrap;font-size:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px;max-height:180px;overflow:auto;margin:0;user-select:text;-webkit-user-select:text}
@@ -152,7 +153,7 @@ aside.panel{background:var(--surface);border:1px solid var(--line);border-radius
 <div class="app" id="app">
   <header class="bar">
     <div class="brand">
-      <span class="eyebrow" id="eyebrow">Matchday line-up</span>
+      <span class="eyebrow" id="eyebrow">TeamSelect</span>
       <h1 id="title">Team</h1>
     </div>
     <div class="tools">
@@ -165,21 +166,8 @@ aside.panel{background:var(--surface);border:1px solid var(--line);border-radius
   <main class="board">
     <div class="pitch-col">
       <div class="pitch" id="pitch" data-loc="pitcharea">
-        <svg class="lines" viewBox="0 0 68 100" preserveAspectRatio="none" aria-hidden="true">
-          <g fill="none" stroke="rgba(255,255,255,.88)" stroke-width=".35">
-            <rect x="2" y="2" width="64" height="96"/>
-            <line x1="2" y1="50" x2="66" y2="50"/>
-            <ellipse cx="34" cy="50" rx="8.7" ry="8.3"/>
-            <rect x="13.85" y="2" width="40.3" height="15.7"/>
-            <rect x="24.85" y="2" width="18.3" height="5.2"/>
-            <rect x="13.85" y="82.3" width="40.3" height="15.7"/>
-            <rect x="24.85" y="92.8" width="18.3" height="5.2"/>
-            <path d="M27.1 17.7 A8.7 8.3 0 0 0 40.9 17.7"/>
-            <path d="M27.1 82.3 A8.7 8.3 0 0 1 40.9 82.3"/>
-          </g>
-          <g fill="rgba(255,255,255,.88)"><circle cx="34" cy="50" r=".6"/><circle cx="34" cy="12" r=".5"/><circle cx="34" cy="88" r=".5"/></g>
-        </svg>
-        <span class="attack">Attacking ↑</span>
+        <svg class="lines" id="pitchLines" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <span class="attack" id="attackLbl">Attacking ↑</span>
         <div id="tokens"></div>
       </div>
       <section class="dugout" aria-label="Substitutes bench">
@@ -212,11 +200,11 @@ aside.panel{background:var(--surface);border:1px solid var(--line);border-radius
 <script>
 (function(){
 "use strict";
-/* ---------- Formations: [label, x%, y% from top]; team attacks upward ---------- */
+/* ---------- Formations: [label, x%, y% from top]. Soccer attacks upward; GAA is drawn like a team sheet (keeper at top, 2-3-4 left to right) so it attacks downward ---------- */
 const GK=['GK',50,91];
 const B4=[['LB',14,72],['CB',37,76],['CB',63,76],['RB',86,72]];
 const B3=[['CB',25,75],['CB',50,78],['CB',75,75]];
-const FORMATIONS={
+const SOCCER_F={
   11:{
     '4-4-2':[GK,...B4,['LM',14,48],['CM',37,52],['CM',63,52],['RM',86,48],['ST',37,22],['ST',63,22]],
     '4-3-3':[GK,...B4,['CM',28,52],['CM',50,57],['CM',72,52],['LW',16,26],['ST',50,18],['RW',84,26]],
@@ -246,10 +234,92 @@ const FORMATIONS={
     '3-1':[GK,['DEF',20,68],['DEF',50,72],['DEF',80,68],['ST',50,26]]
   }
 };
+const GAA_F={
+  15:{
+    'Standard':[['GK',50,6],['RCB',20,20],['FB',50,20],['LCB',80,20],['RHB',16,35],['CHB',50,35],['LHB',84,35],['MF',37,50],['MF',63,50],['RHF',16,65],['CHF',50,65],['LHF',84,65],['RCF',20,80],['FF',50,80],['LCF',80,80]],
+    'Sweeper':[['GK',50,7],['RCB',20,21],['FB',50,21],['LCB',80,21],['RHB',16,41],['CHB',50,42],['LHB',84,41],['MF',37,54],['MF',63,54],['RHF',16,66],['SW',50,30],['LHF',84,66],['RCF',20,79],['FF',50,79],['LCF',80,79]],
+    'Defensive':[['GK',50,7],['RCB',20,20],['FB',50,20],['LCB',80,20],['RHB',16,40],['CHB',50,41],['LHB',84,40],['MF',37,53],['MF',63,53],['RHF',13,56],['SW',50,29],['LHF',87,56],['RCF',24,76],['FF',50,78],['LCF',76,76]],
+    'Push up':[['GK',50,7],['RCB',20,30],['FB',50,30],['LCB',80,30],['RHB',16,44],['CHB',50,44],['LHB',84,44],['MF',37,57],['MF',63,57],['RHF',16,69],['CHF',50,69],['LHF',84,69],['RCF',20,83],['FF',50,83],['LCF',80,83]],
+    'Two inside':[['GK',50,7],['RCB',20,22],['FB',50,22],['LCB',80,22],['RHB',16,36],['CHB',50,36],['LHB',84,36],['MF',33,49],['MF',67,49],['RHF',14,62],['CHF',50,59],['LHF',86,62],['RCF',32,83],['FF',50,71],['LCF',68,83]]
+  },
+  13:{
+    'Standard':[['GK',50,7],['RCB',22,22],['FB',50,22],['LCB',78,22],['RHB',26,37],['LHB',74,37],['MF',37,50],['MF',63,50],['RHF',26,63],['LHF',74,63],['RCF',22,78],['FF',50,78],['LCF',78,78]],
+    'Push up':[['GK',50,7],['RCB',22,30],['FB',50,30],['LCB',78,30],['RHB',26,44],['LHB',74,44],['MF',37,56],['MF',63,56],['RHF',26,68],['LHF',74,68],['RCF',22,82],['FF',50,82],['LCF',78,82]]
+  },
+  11:{
+    'Standard':[['GK',50,7],['RB',30,23],['LB',70,23],['RHB',18,38],['CHB',50,38],['LHB',82,38],['MF',37,52],['MF',63,52],['RF',22,72],['FF',50,74],['LF',78,72]],
+    'Three back':[['GK',50,7],['RCB',22,23],['FB',50,24],['LCB',78,23],['RHB',28,40],['LHB',72,40],['MF',37,52],['MF',63,52],['CHF',50,64],['RF',32,78],['LF',68,78]]
+  },
+  9:{
+    'Standard':[['GK',50,8],['RB',30,25],['LB',70,25],['CHB',50,39],['MF',30,52],['MF',70,52],['CHF',50,65],['RF',30,78],['LF',70,78]],
+    'Three back':[['GK',50,8],['RB',22,25],['FB',50,27],['LB',78,25],['MF',32,48],['MF',68,48],['RF',22,72],['FF',50,75],['LF',78,72]]
+  },
+  7:{
+    'Standard':[['GK',50,8],['RB',30,27],['LB',70,27],['MF',30,52],['MF',70,52],['RF',30,76],['LF',70,76]],
+    'Diamond':[['GK',50,8],['FB',50,26],['RHB',22,42],['LHB',78,42],['MF',50,54],['RF',32,76],['LF',68,76]]
+  }
+};
+const SPORT_NAME={soccer:'Soccer',football:'Gaelic football',hurling:'Hurling'};
+const isGAA=sp=>sp==='football'||sp==='hurling';
+const FORMATS={soccer:[5,7,9,11],gaa:[7,9,11,13,15]};
+const formatsFor=sp=>isGAA(sp)?FORMATS.gaa:FORMATS.soccer;
+const formsFor=(sp,f)=>(isGAA(sp)?GAA_F:SOCCER_F)[f]||{};
+const TAGS_BY={
+  soccer:['Press high','Stay compact','Play out from the back','Go long early','Counter quickly','Full-backs overlap','Track your runner','Win the second ball','Talk to each other','Keep it simple'],
+  football:['Win our own kick-outs','Press their kick-out','Drop a sweeper','Get bodies behind the ball','Support the runner','Kick it in early','Work it through the hands','Shoot when it\'s on','Tackle in numbers','No cheap frees','Talk to each other'],
+  hurling:['Win our own puck-outs','Press their puck-out','Win the breaking ball','Hook and block','Use the short puck-out','Hit the full-forward early','Ground hurling in the square','Mind your man','No cheap frees','Talk to each other']
+};
+const ROLES={
+  soccer:[['corners','Corners'],['freeKicks','Free kicks'],['penalties','Penalties']],
+  football:[['frees','Frees'],['fortyfives','45s'],['kickouts','Kick-outs'],['penalties','Penalties']],
+  hurling:[['frees','Frees'],['sixtyfives','65s'],['puckouts','Puck-outs'],['penalties','Penalties']]
+};
+const koWord=()=>isGAA(S.sport)?'Throw-in':'KO';
+const roleList=()=>ROLES[S.sport].map(([k,l])=>[l,S.roles[k]]);
+/* Pitch markings in pitch units: soccer 68 x 100, GAA 61 x 100 (1 unit = about 1.46 m). */
+function pitchSpec(sp){
+  if(!isGAA(sp))return{w:68,items:[
+    {t:'rect',x:2,y:2,w:64,h:96},{t:'line',x1:2,y1:50,x2:66,y2:50},{t:'circle',cx:34,cy:50,r:8.7},
+    {t:'rect',x:13.85,y:2,w:40.3,h:15.7},{t:'rect',x:24.85,y:2,w:18.3,h:5.2},{t:'rect',x:13.85,y:82.3,w:40.3,h:15.7},{t:'rect',x:24.85,y:92.8,w:18.3,h:5.2},
+    {t:'arc',cx:34,cy:12,r:8.7,a0:40.9,a1:139.1},{t:'arc',cx:34,cy:88,r:8.7,a0:220.9,a1:319.1},
+    {t:'dot',cx:34,cy:50,r:.6},{t:'dot',cx:34,cy:12,r:.5},{t:'dot',cx:34,cy:88,r:.5}]};
+  const m=v=>v/1.458, it=[{t:'rect',x:2,y:2,w:57,h:96},{t:'line',x1:2,y1:50,x2:59,y2:50}];
+  [13,20,45,65].forEach(d=>{it.push({t:'line',x1:2,y1:2+m(d),x2:59,y2:2+m(d)},{t:'line',x1:2,y1:98-m(d),x2:59,y2:98-m(d)})});
+  it.push({t:'rect',x:30.5-m(9.5),y:2,w:m(19),h:m(13)},{t:'rect',x:30.5-m(7),y:2,w:m(14),h:m(4.5)},
+    {t:'rect',x:30.5-m(9.5),y:98-m(13),w:m(19),h:m(13)},{t:'rect',x:30.5-m(7),y:98-m(4.5),w:m(14),h:m(4.5)},
+    {t:'arc',cx:30.5,cy:2+m(20),r:m(13),a0:0,a1:180},{t:'arc',cx:30.5,cy:98-m(20),r:m(13),a0:180,a1:360},
+    {t:'line',x1:30.5-m(3.25),y1:2,x2:30.5+m(3.25),y2:2,lw:3},{t:'line',x1:30.5-m(3.25),y1:98,x2:30.5+m(3.25),y2:98,lw:3},
+    {t:'dot',cx:30.5,cy:2+m(11),r:.5},{t:'dot',cx:30.5,cy:98-m(11),r:.5});
+  return{w:61,items:it};
+}
+function drawPitchSvg(){
+  const spec=pitchSpec(S.sport),pt=(cx,cy,r,a)=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)].map(v=>v.toFixed(2)).join(' ');
+  const out=spec.items.map(o=>{
+    if(o.t==='rect')return `<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}"/>`;
+    if(o.t==='line')return `<line x1="${o.x1}" y1="${o.y1}" x2="${o.x2}" y2="${o.y2}"${o.lw?` stroke-width="${.35*o.lw}"`:''}/>`;
+    if(o.t==='circle')return `<circle cx="${o.cx}" cy="${o.cy}" r="${o.r}"/>`;
+    if(o.t==='arc')return `<path d="M${pt(o.cx,o.cy,o.r,o.a0)} A${o.r} ${o.r} 0 ${o.a1-o.a0>180?1:0} 1 ${pt(o.cx,o.cy,o.r,o.a1)}"/>`;
+    if(o.t==='dot')return `<circle cx="${o.cx}" cy="${o.cy}" r="${o.r}" fill="rgba(255,255,255,.88)" stroke="none"/>`;
+  }).join('');
+  const svg=$('pitchLines');svg.setAttribute('viewBox',`0 0 ${spec.w} 100`);
+  svg.innerHTML=`<g fill="none" stroke="rgba(255,255,255,.88)" stroke-width=".35">${out}</g>`;
+  const pitch=$('pitch');pitch.style.setProperty('--pa',`${spec.w}/100`);pitch.style.setProperty('--pf',String(spec.w/100));
+  const a=$('attackLbl');const down=isGAA(S.sport);a.textContent=down?'Attacking ↓':'Attacking ↑';a.style.top=down?'auto':'8px';a.style.bottom=down?'8px':'auto';
+}
+function strokePitch(ctx,px,py,pw,ph){
+  const spec=pitchSpec(S.sport),k=pw/spec.w,X=v=>px+v*k,Y=v=>py+v/100*ph;
+  ctx.strokeStyle='rgba(255,255,255,.85)';ctx.fillStyle='rgba(255,255,255,.85)';
+  spec.items.forEach(o=>{ctx.lineWidth=3*(o.lw||1);ctx.beginPath();
+    if(o.t==='rect'){ctx.strokeRect(X(o.x),Y(o.y),o.w*k,o.h/100*ph);return}
+    if(o.t==='line'){ctx.moveTo(X(o.x1),Y(o.y1));ctx.lineTo(X(o.x2),Y(o.y2));ctx.stroke();return}
+    if(o.t==='circle'){ctx.arc(X(o.cx),Y(o.cy),o.r*k,0,Math.PI*2);ctx.stroke();return}
+    if(o.t==='arc'){ctx.arc(X(o.cx),Y(o.cy),o.r*k,o.a0*Math.PI/180,o.a1*Math.PI/180);ctx.stroke();return}
+    if(o.t==='dot'){ctx.arc(X(o.cx),Y(o.cy),Math.max(3,o.r*k),0,Math.PI*2);ctx.fill()}
+  });
+}
 const KITS=[['#d6262f','Red'],['#1f4fbf','Royal blue'],['#6fb7e8','Sky blue'],['#127a3e','Green'],['#f2c12e','Yellow'],['#ef7d1a','Orange'],['#6b2d8c','Purple'],['#7a1f35','Claret'],['#161616','Black'],['#f4f4f2','White']];
 const GK_KITS=[['#f2c12e','Yellow'],['#2fd16b','Green'],['#ef7d1a','Orange'],['#e04694','Pink'],['#161616','Black'],['#8a8f98','Grey']];
-const TAGS=['Press high','Stay compact','Play out from the back','Go long early','Counter quickly','Full-backs overlap','Track your runner','Win the second ball','Talk to each other','Keep it simple'];
-const EXAMPLE_NAMES=[['Seán Kelly',1],['Darragh Moore',2],['Liam Doyle',4],['Cian Walsh',5],['Mark Brennan',3],['Eoin Fitzgerald',7],['Ryan Nolan',8],['Jamie Quinn',6],['Shane Murphy',11],['Aaron Flood',9],['Niall Kearney',10],['Ben Gallagher',12],['Kevin Dunne',14],['Oisín Ryan',15],['Paddy Hogan',16],['Tommy Byrne',17]];
+const EXAMPLE_NAMES=[['Seán Kelly',1],['Darragh Moore',2],['Liam Doyle',4],['Cian Walsh',5],['Mark Brennan',3],['Eoin Fitzgerald',7],['Ryan Nolan',8],['Jamie Quinn',6],['Shane Murphy',11],['Aaron Flood',9],['Niall Kearney',10],['Ben Gallagher',12],['Kevin Dunne',14],['Oisín Ryan',15],['Paddy Hogan',16],['Tommy Byrne',17],['Fionn Carey',18],['Cathal Reilly',19],['Dara Phelan',20],['Rory Maher',21],['Colm Tierney',22],['Ciarán Lynch',23],['Odhrán Daly',24],['Donal Hennessy',25]];
 
 const KEY='matchday.lineup.v1', SAVED_KEY='matchday.lineup.saved.v1';
 const uid=()=>Math.random().toString(36).slice(2,9);
@@ -258,32 +328,42 @@ const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){retu
 function nextSaturday(){const d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));return d.toISOString().slice(0,10)}
 function exampleState(){
   const players=EXAMPLE_NAMES.map(([name,num])=>({id:uid(),name,num:String(num),note:''}));
-  const s={v:1,example:true,team:'Riverside Rovers',opp:'Ballyhale Athletic',ha:'Home',date:nextSaturday(),ko:'11:00',meet:'10:15',venue:'Riverside Park, Pitch 2',
-    kit:'#d6262f',gkKit:'#f2c12e',format:11,formation:'4-4-2',slots:[],bench:new Array(5).fill(null),players,captain:null,
-    tags:['Press high','Talk to each other'],notes:'Warm-up starts 10:20. Shin pads and both kits, please.',corners:null,freeKicks:null,penalties:null};
+  const s={v:1,example:true,team:'Riverside Rovers',opp:'Kilbrook Athletic',ha:'Home',date:nextSaturday(),ko:'11:00',meet:'10:15',venue:'Riverside Park, Pitch 2',
+    sport:'soccer',kit:'#d6262f',gkKit:'#f2c12e',format:11,formation:'4-4-2',slots:[],bench:new Array(5).fill(null),players,captain:null,
+    tags:['Press high','Talk to each other'],notes:'Warm-up starts 10:20. Shin pads and both kits, please.',roles:{}};
   applyFormation(s,true);
   s.slots.forEach((sl,i)=>sl.pid=players[i]?players[i].id:null);
   s.bench=s.bench.map((_,i)=>players[11+i]?players[11+i].id:null);
   players[3].note='Organise the back line and call the offside.';
-  s.captain=players[3].id; s.corners=players[10].id; s.freeKicks=players[10].id; s.penalties=players[9].id;
+  s.captain=players[3].id; s.roles={corners:players[10].id,freeKicks:players[10].id,penalties:players[9].id};
   return s;
 }
 function applyFormation(s,keepPlayers){
-  const shape=FORMATIONS[s.format][s.formation]||Object.values(FORMATIONS[s.format])[0];
-  if(!FORMATIONS[s.format][s.formation]) s.formation=Object.keys(FORMATIONS[s.format])[0];
+  const F=formsFor(s.sport,s.format);
+  if(!F[s.formation]) s.formation=Object.keys(F)[0];
+  const shape=F[s.formation];
   const old=s.slots||[];
-  s.slots=shape.map(([label,x,y],i)=>({label,x,y,pid:keepPlayers&&old[i]?old[i].pid:null}));
+  s.slots=shape.map(([label,x,y],i)=>({label,x,y,row:y,pid:keepPlayers&&old[i]?old[i].pid:null}));
 }
 
 let S=store.get(KEY);
 const firstRun=!S||!S.v;
 if(firstRun) S=exampleState();
+if(!S.sport)S.sport='soccer';
+if(!S.roles){S.roles={corners:S.corners||null,freeKicks:S.freeKicks||null,penalties:S.penalties||null};delete S.corners;delete S.freeKicks;delete S.penalties}
 let sel=null, tab='squad', drag=null;
 const $=id=>document.getElementById(id);
 function save(){store.set(KEY,S)}
 const P=id=>S.players.find(p=>p.id===id)||null;
 function inkFor(hex){const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return (0.299*r+0.587*g+0.114*b)>160?'#121212':'#ffffff'}
-function shortName(p){if(!p)return'';const parts=p.name.trim().split(/\s+/);return parts.length>1?parts[parts.length-1]:parts[0]}
+function shortName(p){if(!p)return'';const parts=p.name.trim().split(/\s+/);if(parts.length<2)return parts[0];
+  const sur=parts[parts.length-1],low=sur.toLowerCase();
+  const clash=S.players.some(q=>q!==p&&q.name.trim().split(/\s+/).pop().toLowerCase()===low);
+  return clash?parts[0][0]+'. '+sur:sur}
+/* GAA jerseys go by position: 1-15 on the pitch, subs numbered on from there. Soccer uses each player's own number. */
+function dispNum(pid){const p=P(pid);if(!p)return'';if(!isGAA(S.sport))return p.num||'';
+  const l=locOf(pid);if(l.kind==='pitch')return String(l.i+1);
+  if(l.kind==='bench')return String(S.slots.length+1+S.bench.slice(0,l.i).filter(Boolean).length);return''}
 function esc(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function isGK(i){return S.slots[i]&&S.slots[i].label==='GK'}
 
@@ -308,10 +388,11 @@ function render(){
   document.documentElement.style.setProperty('--kit',S.kit);
   document.documentElement.style.setProperty('--kit-ink',inkFor(S.kit));
   $('title').innerHTML=S.opp?`${esc(S.team||'My team')} <span class="vs">v</span> ${esc(S.opp)}`:esc(S.team||'My team');
-  const when=[fmtDate(S.date),S.ko&&('KO '+S.ko)].filter(Boolean).join(' · ');
-  $('eyebrow').textContent=[S.format+'-a-side',S.ha,when].filter(Boolean).join(' · ');
+  const when=[fmtDate(S.date),S.ko&&(koWord()+' '+S.ko)].filter(Boolean).join(' · ');
+  $('eyebrow').textContent=[SPORT_NAME[S.sport],S.format+'-a-side',S.ha,when].filter(Boolean).join(' · ');
   const fs=$('formationSel');
-  fs.innerHTML=Object.keys(FORMATIONS[S.format]).map(f=>`<option ${f===S.formation?'selected':''}>${f}</option>`).join('');
+  drawPitchSvg();
+  fs.innerHTML=Object.keys(formsFor(S.sport,S.format)).map(f=>`<option ${f===S.formation?'selected':''}>${f}</option>`).join('');
   renderTokens();renderBench();renderPanel();renderHint();
 }
 function fmtDate(d){if(!d)return'';const t=new Date(d+'T12:00:00');if(isNaN(t))return d;return t.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})}
@@ -321,7 +402,7 @@ function renderTokens(){
     const p=P(s.pid),l={kind:'pitch',i},isSel=sel&&sameLoc(sel,l);
     if(!p)return `<div class="tok empty${isSel?' sel':''}" data-loc="pitch:${i}" style="left:${s.x}%;top:${s.y}%"><div class="disc">${esc(s.label)}</div><span class="pos">Tap to fill</span></div>`;
     return `<div class="tok${isSel?' sel':''}" data-loc="pitch:${i}" style="left:${s.x}%;top:${s.y}%;${discStyle(isGK(i))}" aria-label="${esc(s.label)} ${esc(p.name)}">
-      <div class="disc">${esc(p.num||'')}${S.captain===p.id?'<span class="cap">C</span>':''}</div>
+      <div class="disc">${esc(dispNum(p.id))}${S.captain===p.id?'<span class="cap">C</span>':''}</div>
       <span class="name">${esc(shortName(p))}</span><span class="pos">${esc(s.label)}</span></div>`;
   }).join('');
 }
@@ -332,7 +413,7 @@ function renderBench(){
   $('bench').innerHTML=S.bench.map((pid,i)=>{
     const p=P(pid),isSel=sel&&sameLoc(sel,{kind:'bench',i});
     if(!p)return `<div class="bench-slot empty${isSel?' sel':''}" data-loc="bench:${i}"><div class="disc">SUB</div><span class="bname">Empty</span></div>`;
-    return `<div class="bench-slot${isSel?' sel':''}" data-loc="bench:${i}"><div class="disc">${esc(p.num||'')}${S.captain===p.id?'<span class="cap">C</span>':''}</div><span class="bname">${esc(shortName(p))}</span></div>`;
+    return `<div class="bench-slot${isSel?' sel':''}" data-loc="bench:${i}"><div class="disc">${esc(dispNum(p.id))}${S.captain===p.id?'<span class="cap">C</span>':''}</div><span class="bname">${esc(shortName(p))}</span></div>`;
   }).join('');
 }
 function renderHint(){
@@ -353,32 +434,30 @@ function renderPanel(){
 function squadHTML(){
   const placed=new Set([...S.slots.map(s=>s.pid),...S.bench].filter(Boolean));
   const avail=S.players.filter(p=>!placed.has(p.id)).sort(byNum);
-  const inTeam=S.players.filter(p=>placed.has(p.id)).sort(byNum);
+  const inTeam=S.players.filter(p=>placed.has(p.id)).sort(isGAA(S.sport)?(a,b)=>(+dispNum(a.id))-(+dispNum(b.id)):byNum);
   const item=(p)=>{const l=locOf(p.id);const where=l.kind==='pitch'?S.slots[l.i].label:l.kind==='bench'?'Bench':'';
     const isSel=sel&&((sel.kind==='pool'&&sel.pid===p.id)||sameLoc(sel,l));
-    return `<div class="pool-item${where?' assigned':''}${isSel?' sel':''}" data-loc="pool:${p.id}"><span class="num">${esc(p.num||'–')}</span><span class="pname">${esc(p.name)}</span>${where?`<span class="where">${esc(where)}</span>`:''}</div>`};
+    return `<div class="pool-item${where?' assigned':''}${isSel?' sel':''}" data-loc="pool:${p.id}"><span class="num">${esc(dispNum(p.id)||'–')}</span><span class="pname">${esc(p.name)}</span>${where?`<span class="where">${esc(where)}</span>`:''}</div>`};
   return `${S.example?`<div class="example-banner"><p>This is an example squad. Clear it and add your own players.</p><button class="btn small" data-act="clearExample">Clear example</button></div>`:''}
   <div class="section"><span class="label">Available · ${avail.length}</span>
     <p class="muted">Drag a player onto the pitch or bench, or tap them then tap a spot.</p>
     <div class="pool" data-loc="poolarea">${avail.map(item).join('')||'<p class="muted" style="padding:8px">Everyone is picked. Drag a player here to take them out of the team.</p>'}</div></div>
   <div class="section"><span class="label">Add players</span>
-    <div class="row"><div class="field" style="flex:0 0 70px"><label for="newNum">No.</label><input id="newNum" inputmode="numeric" maxlength="3"></div>
+    <div class="row">${isGAA(S.sport)?'':'<div class="field" style="flex:0 0 70px"><label for="newNum">No.</label><input id="newNum" inputmode="numeric" maxlength="3"></div>'}
     <div class="field"><label for="newName">Name</label><input id="newName" autocomplete="off" placeholder="e.g. Jack Ryan"></div></div>
     <div class="row"><button class="btn small primary" data-act="addPlayer">Add player</button><button class="btn small" data-act="bulk">Paste a list</button></div></div>
   <div class="section"><span class="label">In the squad · ${inTeam.length}</span><div class="pool">${inTeam.map(item).join('')||'<p class="muted" style="padding:8px">No one picked yet.</p>'}</div></div>`;
 }
 function byNum(a,b){return (parseInt(a.num)||999)-(parseInt(b.num)||999)||a.name.localeCompare(b.name)}
-function playerOptions(cur){return `<option value="">—</option>`+S.players.slice().sort(byNum).map(p=>`<option value="${p.id}" ${p.id===cur?'selected':''}>${esc(p.num?p.num+' · ':'')}${esc(p.name)}</option>`).join('')}
+function playerOptions(cur){return `<option value="">—</option>`+S.players.slice().sort(byNum).map(p=>`<option value="${p.id}" ${p.id===cur?'selected':''}>${esc(dispNum(p.id)?dispNum(p.id)+' · ':'')}${esc(p.name)}</option>`).join('')}
 function planHTML(){
   const notes=S.players.filter(p=>p.note);
   return `<div class="section"><span class="label">Team instructions</span>
-    <div class="chips">${TAGS.map(t=>`<button class="chip" data-tag="${esc(t)}" aria-pressed="${S.tags.includes(t)}">${esc(t)}</button>`).join('')}</div></div>
+    <div class="chips">${TAGS_BY[S.sport].map(t=>`<button class="chip" data-tag="${esc(t)}" aria-pressed="${S.tags.includes(t)}">${esc(t)}</button>`).join('')}</div></div>
   <div class="section"><div class="field"><label for="notes">Notes for the group</label><textarea id="notes" data-bind="notes" placeholder="Meeting point, what to bring, focus for the day">${esc(S.notes)}</textarea></div></div>
   <div class="section"><span class="label">Roles &amp; set pieces</span>
     <div class="row"><div class="field"><label for="captain">Captain</label><select id="captain" data-bind="captain">${playerOptions(S.captain)}</select></div>
-    <div class="field"><label for="corners">Corners</label><select id="corners" data-bind="corners">${playerOptions(S.corners)}</select></div></div>
-    <div class="row"><div class="field"><label for="freeKicks">Free kicks</label><select id="freeKicks" data-bind="freeKicks">${playerOptions(S.freeKicks)}</select></div>
-    <div class="field"><label for="penalties">Penalties</label><select id="penalties" data-bind="penalties">${playerOptions(S.penalties)}</select></div></div></div>
+    </div><div class="row" style="flex-wrap:wrap">${ROLES[S.sport].map(([k,l])=>`<div class="field"><label for="role-${k}">${l}</label><select id="role-${k}" data-bind="role:${k}">${playerOptions(S.roles[k])}</select></div>`).join('')}</div></div>
   <div class="section"><span class="label">Individual instructions</span>
     <p class="muted">Tap a player on the pitch twice to give them a personal instruction.</p>
     ${notes.map(p=>`<div class="saved-item"><span class="sname">${esc(p.name)}: <span style="font-weight:400">${esc(p.note)}</span></span></div>`).join('')}</div>`;
@@ -391,7 +470,7 @@ function matchHTML(){
     <div class="row"><div class="field"><label for="ha">Home or away</label><select id="ha" data-bind="ha">${['Home','Away','Neutral'].map(o=>`<option ${o===S.ha?'selected':''}>${o}</option>`).join('')}</select></div>
     <div class="field"><label for="date">Date</label><input id="date" type="date" data-bind="date" value="${esc(S.date)}"></div></div>
     <div class="row"><div class="field"><label for="meet">Meet time</label><input id="meet" type="time" data-bind="meet" value="${esc(S.meet)}"></div>
-    <div class="field"><label for="ko">Kick-off</label><input id="ko" type="time" data-bind="ko" value="${esc(S.ko)}"></div></div>
+    <div class="field"><label for="ko">${isGAA(S.sport)?'Throw-in':'Kick-off'}</label><input id="ko" type="time" data-bind="ko" value="${esc(S.ko)}"></div></div>
     <div class="field"><label for="venue">Venue</label><input id="venue" data-bind="venue" value="${esc(S.venue)}"></div></div>
   <div class="section"><span class="label">Kit colour</span>
     <div class="swatches">${KITS.map(([c,n])=>`<button class="swatch" style="background:${c}" data-kit="${c}" aria-label="${n}" aria-pressed="${c===S.kit}"></button>`).join('')}</div>
@@ -423,7 +502,7 @@ function makeGhost(loc){
   const pid=getPid(loc)||(loc.kind==='pool'?loc.pid:null);const p=P(pid);
   const g=document.createElement('div');g.className='ghost';
   const gk=loc.kind==='pitch'&&isGK(loc.i);
-  g.innerHTML=p?`<div class="disc" style="${discStyle(gk)}">${esc(p.num||'')}</div><span class="name">${esc(shortName(p))}</span>`:`<div class="disc" style="background:rgba(0,0,0,.25);border-style:dashed">${loc.kind==='pitch'?esc(S.slots[loc.i].label):'SUB'}</div>`;
+  g.innerHTML=p?`<div class="disc" style="${discStyle(gk)}">${esc(dispNum(p.id))}</div><span class="name">${esc(shortName(p))}</span>`:`<div class="disc" style="background:rgba(0,0,0,.25);border-style:dashed">${loc.kind==='pitch'?esc(S.slots[loc.i].label):'SUB'}</div>`;
   document.body.appendChild(g);return g;
 }
 function onMove(e){
@@ -511,7 +590,7 @@ function openEditor(loc){
   openSheet(`<h2>${p?esc(p.name):'Empty '+esc(where)+' slot'}</h2><p class="sub">${esc(where)}</p>
     ${slot?`<div class="field"><label for="edLabel">Position label</label><input id="edLabel" maxlength="5" value="${esc(slot.label)}"></div>`:''}
     ${loc.kind!=='pool'?`<div class="field"><label for="edPlayer">Player in this spot</label><select id="edPlayer">${playerOptions(pid)}</select></div>`:''}
-    ${p?`<div class="row"><div class="field" style="flex:0 0 80px"><label for="edNum">No.</label><input id="edNum" inputmode="numeric" maxlength="3" value="${esc(p.num)}"></div>
+    ${p?`<div class="row">${isGAA(S.sport)?'':`<div class="field" style="flex:0 0 80px"><label for="edNum">No.</label><input id="edNum" inputmode="numeric" maxlength="3" value="${esc(p.num)}"></div>`}
       <div class="field"><label for="edName">Name</label><input id="edName" value="${esc(p.name)}"></div></div>
       <div class="field"><label for="edNote">Instruction for ${esc(shortName(p))}</label><textarea id="edNote" placeholder="e.g. Mark their number 9 at set pieces">${esc(p.note||'')}</textarea></div>
       <label class="row" style="gap:10px"><input type="checkbox" id="edCap" ${S.captain===p.id?'checked':''} style="width:22px;height:22px"> Captain</label>`:''}
@@ -522,11 +601,11 @@ function openEditor(loc){
     $('edCancel').onclick=()=>{closeSheet();sel=null;render()};
     if($('edRemove'))$('edRemove').onclick=()=>{setPid(loc,null);finish()};
     if($('edDelete'))$('edDelete').onclick=()=>{
-      if($('edDelete').dataset.armed){S.players=S.players.filter(x=>x.id!==p.id);['captain','corners','freeKicks','penalties'].forEach(k=>{if(S[k]===p.id)S[k]=null});finish()}
+      if($('edDelete').dataset.armed){S.players=S.players.filter(x=>x.id!==p.id);if(S.captain===p.id)S.captain=null;Object.keys(S.roles).forEach(k=>{if(S.roles[k]===p.id)S.roles[k]=null});finish()}
       else{$('edDelete').dataset.armed='1';$('edDelete').textContent='Tap again to delete'}};
     $('edSave').onclick=()=>{
       if(slot&&$('edLabel').value.trim())slot.label=$('edLabel').value.trim().toUpperCase();
-      if(p){p.num=$('edNum').value.trim();p.name=$('edName').value.trim()||p.name;p.note=$('edNote').value.trim();
+      if(p){if($('edNum'))p.num=$('edNum').value.trim();p.name=$('edName').value.trim()||p.name;p.note=$('edNote').value.trim();
         if($('edCap').checked)S.captain=p.id;else if(S.captain===p.id)S.captain=null;}
       if($('edPlayer')){const np=$('edPlayer').value||null;if(np!==pid){if(np){swap(loc,locOf(np))}else setPid(loc,null)}}
       finish();
@@ -536,33 +615,42 @@ function openEditor(loc){
 }
 
 function openSetup(first){
-  const st={format:S.format,formation:S.formation,bench:S.bench.length||5,team:S.team};
+  const st={sport:S.sport,format:S.format,formation:S.formation,bench:S.bench.length||5,team:S.team};
   const draw=()=>{
-    const forms=Object.keys(FORMATIONS[st.format]);if(!forms.includes(st.formation))st.formation=forms[0];
-    openSheet(`<h2>${first?'Set up your team':'New match'}</h2><p class="sub">Pick the format, a starting shape and how many subs you can name. You can change all of this later.</p>
+    const fmts=formatsFor(st.sport);if(!fmts.includes(st.format))st.format=isGAA(st.sport)?15:11;
+    const forms=Object.keys(formsFor(st.sport,st.format));if(!forms.includes(st.formation))st.formation=forms[0];
+    openSheet(`<h2>${first?'Set up your team':'New match'}</h2><p class="sub">Pick the sport, format, a starting shape and how many subs you can name. You can change all of this later.</p>
       <div class="field"><label for="suTeam">Team name</label><input id="suTeam" value="${esc(st.team)}"></div>
-      <div class="section"><span class="label">Format</span><div class="seg">${[5,7,9,11].map(n=>`<button data-fmt="${n}" aria-pressed="${n===st.format}">${n}-a-side</button>`).join('')}</div></div>
-      <div class="section"><span class="label">Formation</span><div class="chips">${forms.map(f=>`<button class="chip" data-form="${f}" aria-pressed="${f===st.formation}">${f}</button>`).join('')}</div></div>
-      <div class="section"><span class="label">Bench slots</span><div class="row"><div class="stepper"><button id="suMinus" aria-label="Fewer">−</button><span id="suBench">${st.bench}</span><button id="suPlus" aria-label="More">+</button></div><span class="muted">Check your league's limit on named subs.</span></div></div>
-      ${first?'':`<p class="muted">Your squad is kept. Starting places refill in shirt-number order; fixture details stay until you change them.</p>`}
+      <div class="section"><span class="label">Sport</span><div class="seg">${Object.keys(SPORT_NAME).map(k=>`<button data-sport="${k}" aria-pressed="${k===st.sport}">${SPORT_NAME[k]}</button>`).join('')}</div></div>
+      <div class="section"><span class="label">Format</span><div class="seg">${fmts.map(n=>`<button data-fmt="${n}" aria-pressed="${n===st.format}">${n}<span class="hide-narrow">-a-side</span></button>`).join('')}</div></div>
+      <div class="section"><span class="label">${isGAA(st.sport)?'Shape':'Formation'}</span><div class="chips">${forms.map(f=>`<button class="chip" data-form="${f}" aria-pressed="${f===st.formation}">${f}</button>`).join('')}</div></div>
+      <div class="section"><span class="label">Bench slots</span><div class="row"><div class="stepper"><button id="suMinus" aria-label="Fewer">−</button><span id="suBench">${st.bench}</span><button id="suPlus" aria-label="More">+</button></div><span class="muted">Check your ${isGAA(st.sport)?'county board':'league'}'s limit on named subs.</span></div></div>
+      ${isGAA(st.sport)?'<p class="muted">Jersey numbers follow position: the keeper wears 1, full-back 3, full-forward 14, and subs carry on from there.</p>':''}
+      ${first?'':`<p class="muted">Your squad is kept. Starting places refill in squad order; fixture details stay until you change them.</p>`}
       <div class="sheet-actions">${first?'':'<button class="btn" id="suCancel">Cancel</button>'}<button class="btn primary" id="suGo">${first?'Open the board':'Set up line-up'}</button></div>`,(root)=>{
-      root.querySelectorAll('[data-fmt]').forEach(b=>b.onclick=()=>{st.team=$('suTeam').value;st.format=+b.dataset.fmt;draw()});
-      root.querySelectorAll('[data-form]').forEach(b=>b.onclick=()=>{st.team=$('suTeam').value;st.formation=b.dataset.form;draw()});
+      const keepTeam=()=>{st.team=$('suTeam').value};
+      root.querySelectorAll('[data-sport]').forEach(b=>b.onclick=()=>{keepTeam();const was=isGAA(st.sport);st.sport=b.dataset.sport;if(was!==isGAA(st.sport)){st.bench=isGAA(st.sport)?8:5;st.format=isGAA(st.sport)?15:11}draw()});
+      root.querySelectorAll('[data-fmt]').forEach(b=>b.onclick=()=>{keepTeam();st.format=+b.dataset.fmt;draw()});
+      root.querySelectorAll('[data-form]').forEach(b=>b.onclick=()=>{keepTeam();st.formation=b.dataset.form;draw()});
       $('suMinus').onclick=()=>{st.bench=Math.max(0,st.bench-1);$('suBench').textContent=st.bench};
-      $('suPlus').onclick=()=>{st.bench=Math.min(16,st.bench+1);$('suBench').textContent=st.bench};
+      $('suPlus').onclick=()=>{st.bench=Math.min(20,st.bench+1);$('suBench').textContent=st.bench};
       if($('suCancel'))$('suCancel').onclick=closeSheet;
       $('suGo').onclick=()=>{
-        S.team=$('suTeam').value.trim()||S.team;
-        if(first){
-          const keep=S.format===st.format;S.format=st.format;S.formation=st.formation;applyFormation(S,keep);resizeBench(st.bench);
-          if(!keep)autoFill();
-        } else {
-          S.format=st.format;S.formation=st.formation;S.slots=[];applyFormation(S,false);S.bench=new Array(st.bench).fill(null);autoFill();
-        }
+        const newTeam=$('suTeam').value.trim();
+        const layoutChanged=isGAA(st.sport)!==isGAA(S.sport)||st.format!==S.format;
+        if(S.example&&isGAA(st.sport)&&!isGAA(S.sport)){if(S.team==='Riverside Rovers')S.team='Riverside Gaels';if(S.opp==='Kilbrook Athletic')S.opp='Kilbrook';if(S.venue==='Riverside Park, Pitch 2')S.venue='Riverside Park';S.roles={};const cw=S.players.find(x=>x.note==='Organise the back line and call the offside.');if(cw)cw.note='Organise the full-back line and talk to the keeper.';
+          if(S.notes==='Warm-up starts 10:20. Shin pads and both kits, please.')S.notes=st.sport==='hurling'?'Warm-up starts 10:20. Bring your helmet, a spare hurl and both jerseys.':'Warm-up starts 10:20. Bring boots for both surfaces and both jerseys.';}
+        if(S.example&&!isGAA(st.sport)&&isGAA(S.sport)){if(S.team==='Riverside Gaels')S.team='Riverside Rovers';if(S.opp==='Kilbrook')S.opp='Kilbrook Athletic'}
+        if(newTeam&&!(S.example&&newTeam===st.teamAtOpen))S.team=newTeam;
+        S.sport=st.sport;S.tags=S.tags.filter(t=>TAGS_BY[S.sport].includes(t));
+        S.format=st.format;S.formation=st.formation;
+        if(first&&!layoutChanged){applyFormation(S,true);resizeBench(st.bench)}
+        else{S.slots=[];applyFormation(S,false);S.bench=new Array(st.bench).fill(null);autoFill()}
         sel=null;save();closeSheet();render();
       };
     });
   };
+  st.teamAtOpen=S.team;
   draw();
 }
 function autoFill(){
@@ -590,21 +678,29 @@ function bulkSheet(){
     };
   });
 }
-function clearSquad(){S.players=[];S.slots.forEach(s=>s.pid=null);S.bench=S.bench.map(()=>null);S.captain=S.corners=S.freeKicks=S.penalties=null;S.example=false}
+function clearSquad(){S.players=[];S.slots.forEach(s=>s.pid=null);S.bench=S.bench.map(()=>null);S.captain=null;S.roles={};S.example=false}
 
 /* ---------- Share: image + WhatsApp message ---------- */
 function messageText(){
   const L=[];
   L.push(`*${S.team||'Line-up'}${S.opp?' v '+S.opp:''}*`);
-  const when=[fmtDate(S.date),S.meet&&('Meet '+S.meet),S.ko&&('KO '+S.ko)].filter(Boolean).join(' · ');
+  const when=[fmtDate(S.date),S.meet&&('Meet '+S.meet),S.ko&&(koWord()+' '+S.ko)].filter(Boolean).join(' · ');
   if(when)L.push(when);
   if(S.venue)L.push(S.venue+(S.ha?` (${S.ha})`:''));
-  L.push('');L.push(`*Starting ${S.format} (${S.formation})*`);
-  S.slots.map((s,i)=>({s,i})).sort((a,b)=>b.s.y-a.s.y||a.s.x-b.s.x).forEach(({s})=>{const p=P(s.pid);L.push(`${s.label} – ${p?(p.num?p.num+' ':'')+p.name+(S.captain===p.id?' (C)':''):'TBC'}`)});
+  L.push('');
+  const cap=p=>S.captain===p.id?' (C)':'';
+  if(isGAA(S.sport)){
+    L.push(`*${SPORT_NAME[S.sport]} team · ${S.format}-a-side, ${S.formation}*`);
+    const rows=[];S.slots.forEach((s,i)=>{const key=Math.round(s.row??s.y);let r=rows.find(x=>x.key===key);if(!r){r={key,items:[]};rows.push(r)}r.items.push(`${i+1} ${P(s.pid)?P(s.pid).name+cap(P(s.pid)):'TBC'}`)});
+    rows.forEach(r=>L.push(r.items.join(' · ')));
+  } else {
+    L.push(`*Starting ${S.format} (${S.formation})*`);
+    S.slots.map((s,i)=>({s,i})).sort((a,b)=>b.s.y-a.s.y||a.s.x-b.s.x).forEach(({s})=>{const p=P(s.pid);L.push(`${s.label} – ${p?(p.num?p.num+' ':'')+p.name+cap(p):'TBC'}`)});
+  }
   const subs=S.bench.map(P).filter(Boolean);
-  if(subs.length){L.push('');L.push('*Subs*');subs.forEach(p=>L.push(`${p.num?p.num+' ':''}${p.name}${S.captain===p.id?' (C)':''}`))}
-  const sp=[['Corners',S.corners],['Free kicks',S.freeKicks],['Penalties',S.penalties]].filter(x=>P(x[1]));
-  if(sp.length){L.push('');L.push('*Set pieces*');sp.forEach(([k,v])=>L.push(`${k}: ${P(v).name}`))}
+  if(subs.length){L.push('');L.push('*Subs*');subs.forEach(p=>L.push(`${dispNum(p.id)?dispNum(p.id)+' ':''}${p.name}${S.captain===p.id?' (C)':''}`))}
+  const sp=roleList().filter(x=>P(x[1]));
+  if(sp.length){L.push('');L.push(isGAA(S.sport)?'*Frees & restarts*':'*Set pieces*');sp.forEach(([k,v])=>L.push(`${k}: ${P(v).name}`))}
   const notes=S.players.filter(p=>p.note&&locOf(p.id).kind!=='pool');
   if(S.tags.length||S.notes||notes.length){L.push('');L.push('*Instructions*');S.tags.forEach(t=>L.push('• '+t));notes.forEach(p=>L.push(`• ${shortName(p)}: ${p.note}`));if(S.notes)L.push(S.notes)}
   return L.join('\n');
@@ -614,14 +710,14 @@ function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w
 async function buildImage(){
   try{await document.fonts.load('700 40px "Barlow Condensed"');await document.fonts.load('500 24px "Barlow"')}catch(e){}
   const W=1080,pad=56,DF='"Barlow Condensed","Arial Narrow",sans-serif',BF='"Barlow",system-ui,sans-serif';
-  const pw=W-pad*2-120,ph=Math.round(pw*100/68),px=(W-pw)/2;
+  const PW=pitchSpec(S.sport).w,pw=W-pad*2-120,ph=Math.round(pw*100/PW),px=(W-pw)/2;
   const meas=document.createElement('canvas').getContext('2d');
   meas.font=`500 30px ${BF}`;
   const instr=[...S.tags.map(t=>'• '+t),...S.players.filter(p=>p.note&&locOf(p.id).kind!=='pool').map(p=>`• ${shortName(p)}: ${p.note}`)];
   if(S.notes)instr.push(S.notes);
   const instrLines=instr.flatMap(t=>wrapLines(meas,t,W-pad*2));
   const subs=S.bench.map(P).filter(Boolean);
-  const sp=[['Captain',S.captain],['Corners',S.corners],['Free kicks',S.freeKicks],['Penalties',S.penalties]].filter(x=>P(x[1]));
+  const sp=[['Captain',S.captain],...roleList()].filter(x=>P(x[1]));
   const headH=230,subsH=subs.length?60+Math.ceil(subs.length/2)*46:0,spH=sp.length?60+Math.ceil(sp.length/2)*44:0,instrH=instrLines.length?70+instrLines.length*42:0;
   const H=headH+ph+50+subsH+spH+instrH+70;
   const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d');
@@ -629,27 +725,20 @@ async function buildImage(){
   // header
   ctx.fillStyle=S.kit;ctx.fillRect(0,0,W,14);
   ctx.fillStyle='#9fb4a6';ctx.font=`600 28px ${DF}`;ctx.textBaseline='alphabetic';
-  ctx.fillText(`${S.format}-A-SIDE · ${S.formation}${S.ha?' · '+S.ha.toUpperCase():''}`,pad,78);
+  ctx.fillText(`${SPORT_NAME[S.sport].toUpperCase()} · ${S.format}-A-SIDE · ${S.formation.toUpperCase()}${S.ha?' · '+S.ha.toUpperCase():''}`,pad,78);
   ctx.fillStyle='#ffffff';ctx.font=`700 64px ${DF}`;
   let title=(S.team||'Line-up')+(S.opp?' v '+S.opp:'');
   while(ctx.measureText(title).width>W-pad*2&&ctx.font.match(/(\d+)px/)[1]>36){const sz=+ctx.font.match(/(\d+)px/)[1]-4;ctx.font=`700 ${sz}px ${DF}`}
   ctx.fillText(title,pad,148);
   ctx.fillStyle='#d7e3da';ctx.font=`500 30px ${BF}`;
-  const info=[fmtDate(S.date),S.meet&&('Meet '+S.meet),S.ko&&('KO '+S.ko),S.venue].filter(Boolean).join('  ·  ');
+  const info=[fmtDate(S.date),S.meet&&('Meet '+S.meet),S.ko&&(koWord()+' '+S.ko),S.venue].filter(Boolean).join('  ·  ');
   wrapLines(ctx,info,W-pad*2).slice(0,1).forEach((l,i)=>ctx.fillText(l,pad,196));
   // pitch
   const py=headH;
   ctx.save();rr(ctx,px,py,pw,ph,16);ctx.clip();
   for(let i=0;i<10;i++){ctx.fillStyle=i%2?'#297a42':'#2e8549';ctx.fillRect(px,py+ph*i/10,pw,ph/10+1)}
   ctx.restore();
-  const sx=v=>px+v/68*pw,sy=v=>py+v/100*ph;
-  ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=3;
-  const R=(x,y,w,h)=>ctx.strokeRect(sx(x),sy(y),w/68*pw,h/100*ph);
-  R(2,2,64,96);R(13.85,2,40.3,15.7);R(24.85,2,18.3,5.2);R(13.85,82.3,40.3,15.7);R(24.85,92.8,18.3,5.2);
-  ctx.beginPath();ctx.moveTo(sx(2),sy(50));ctx.lineTo(sx(66),sy(50));ctx.stroke();
-  ctx.beginPath();ctx.ellipse(sx(34),sy(50),8.7/68*pw,8.3/100*ph,0,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.ellipse(sx(34),sy(12),8.7/68*pw,8.3/100*ph,0,0.2*Math.PI,0.8*Math.PI);ctx.stroke();
-  ctx.beginPath();ctx.ellipse(sx(34),sy(88),8.7/68*pw,8.3/100*ph,0,1.2*Math.PI,1.8*Math.PI);ctx.stroke();
+  strokePitch(ctx,px,py,pw,ph);
   // tokens
   const tr=Math.round(pw*0.055);
   S.slots.forEach((s,i)=>{
@@ -658,7 +747,7 @@ async function buildImage(){
     ctx.beginPath();ctx.arc(x,y-10,tr,0,Math.PI*2);ctx.fillStyle=p?kit:'rgba(255,255,255,.15)';ctx.fill();ctx.restore();
     ctx.lineWidth=4;ctx.strokeStyle='#fff';ctx.setLineDash(p?[]:[8,6]);ctx.beginPath();ctx.arc(x,y-10,tr,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillStyle=p?inkFor(kit):'#fff';ctx.font=`700 ${p?34:24}px ${DF}`;ctx.fillText(p?(p.num||''):s.label,x,y-8);
+    ctx.fillStyle=p?inkFor(kit):'#fff';ctx.font=`700 ${p?34:24}px ${DF}`;ctx.fillText(p?dispNum(p.id):s.label,x,y-8);
     if(p&&S.captain===p.id){ctx.fillStyle='#f2c12e';rr(ctx,x+tr-14,y-10-tr-6,30,26,6);ctx.fill();ctx.fillStyle='#1b1500';ctx.font=`700 20px ${DF}`;ctx.fillText('C',x+tr+1,y-10-tr+8)}
     const nm=p?shortName(p):'TBC';ctx.font=`600 28px ${DF}`;const w=ctx.measureText(nm).width+20;
     ctx.fillStyle='rgba(8,25,14,.78)';rr(ctx,x-w/2,y+tr-2,w,36,8);ctx.fill();
@@ -669,9 +758,9 @@ async function buildImage(){
   let y=py+ph+50;
   const heading=(t)=>{ctx.fillStyle='#9fb4a6';ctx.font=`600 26px ${DF}`;ctx.fillText(t.toUpperCase(),pad,y+26);y+=60};
   if(subs.length){heading('Subs');ctx.font=`500 30px ${BF}`;subs.forEach((p,i)=>{const cx=pad+(i%2)*((W-pad*2)/2),cy=y+Math.floor(i/2)*46;
-    ctx.fillStyle=S.kit;ctx.beginPath();ctx.arc(cx+17,cy+4,17,0,Math.PI*2);ctx.fill();ctx.fillStyle=inkFor(S.kit);ctx.font=`700 20px ${DF}`;ctx.textAlign='center';ctx.fillText(p.num||'',cx+17,cy+11);ctx.textAlign='left';
+    ctx.fillStyle=S.kit;ctx.beginPath();ctx.arc(cx+17,cy+4,17,0,Math.PI*2);ctx.fill();ctx.fillStyle=inkFor(S.kit);ctx.font=`700 20px ${DF}`;ctx.textAlign='center';ctx.fillText(dispNum(p.id),cx+17,cy+11);ctx.textAlign='left';
     ctx.fillStyle='#fff';ctx.font=`500 30px ${BF}`;ctx.fillText(p.name,cx+48,cy+14)});y+=Math.ceil(subs.length/2)*46}
-  if(sp.length){heading('Roles & set pieces');sp.forEach(([k,v],i)=>{const cx=pad+(i%2)*((W-pad*2)/2),cy=y+Math.floor(i/2)*44;ctx.fillStyle='#9fb4a6';ctx.font=`500 26px ${BF}`;ctx.fillText(k,cx,cy+12);ctx.fillStyle='#fff';ctx.font=`600 28px ${BF}`;ctx.fillText(shortName(P(v)),cx+170,cy+12)});y+=Math.ceil(sp.length/2)*44}
+  if(sp.length){heading(isGAA(S.sport)?'Captain, frees & restarts':'Roles & set pieces');sp.forEach(([k,v],i)=>{const cx=pad+(i%2)*((W-pad*2)/2),cy=y+Math.floor(i/2)*44;ctx.fillStyle='#9fb4a6';ctx.font=`500 26px ${BF}`;ctx.fillText(k,cx,cy+12);ctx.fillStyle='#fff';ctx.font=`600 28px ${BF}`;ctx.fillText(shortName(P(v)),cx+185,cy+12)});y+=Math.ceil(sp.length/2)*44}
   if(instrLines.length){heading('Instructions');ctx.fillStyle='#e8efe9';ctx.font=`500 30px ${BF}`;instrLines.forEach((l,i)=>ctx.fillText(l,pad,y+12+i*42));}
   return c;
 }
@@ -695,7 +784,7 @@ async function openShare(){
   const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
   const img=$('shImg');if(!img)return;
   img.src=URL.createObjectURL(blob);
-  const fname=`lineup-${(S.opp||S.team||'team').replace(/[^\w]+/g,'-').toLowerCase()}${S.date?'-'+S.date:''}.png`;
+  const fname=`teamselect-${(S.opp||S.team||'team').replace(/[^\w]+/g,'-').toLowerCase()}${S.date?'-'+S.date:''}.png`;
   const file=new File([blob],fname,{type:'image/png'});
   const canShareFile=!!(navigator.canShare&&navigator.canShare({files:[file]}));
   $('shSave').textContent=canShareFile?'Share image':'Save image';
@@ -720,7 +809,7 @@ $('formationSel').onchange=e=>{S.formation=e.target.value;applyFormation(S,true)
 $('setupBtn').onclick=()=>openSetup(false);
 $('shareBtn').onclick=openShare;
 $('benchMinus').onclick=()=>{resizeBench(Math.max(0,S.bench.length-1));sel=null;save();render()};
-$('benchPlus').onclick=()=>{resizeBench(Math.min(16,S.bench.length+1));save();render()};
+$('benchPlus').onclick=()=>{resizeBench(Math.min(20,S.bench.length+1));save();render()};
 $('hintCancel').onclick=()=>{sel=null;render()};
 $('hintEdit').onclick=()=>{const l=sel;sel=null;openEditor(l)};
 document.querySelector('.tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(b){tab=b.dataset.tab;pendingDelete=null;renderPanel()}};
@@ -730,7 +819,7 @@ $('panelBody').addEventListener('click',e=>{
   if(t.dataset.kit){S.kit=t.dataset.kit;save();render();return}
   if(t.dataset.gkkit){S.gkKit=t.dataset.gkkit;save();render();return}
   const a=t.dataset.act;
-  if(a==='addPlayer'){const n=$('newName').value.trim();if(!n){$('newName').focus();return}S.players.push({id:uid(),name:n,num:$('newNum').value.trim(),note:''});S.example=false;save();render();$('newName').focus()}
+  if(a==='addPlayer'){const n=$('newName').value.trim();if(!n){$('newName').focus();return}S.players.push({id:uid(),name:n,num:$('newNum')?$('newNum').value.trim():'',note:''});S.example=false;save();render();$('newName').focus()}
   else if(a==='bulk')bulkSheet();
   else if(a==='clearExample'){clearSquad();S.team='';S.opp='';S.venue='';S.notes='';S.tags=[];save();render();openSetup(false)}
   else if(a==='resetPos'){applyFormation(S,true);save();render();toast('Positions reset')}
@@ -740,7 +829,7 @@ $('panelBody').addEventListener('click',e=>{
   else if(a==='delSaved'){const i=+t.dataset.i;if(pendingDelete===i){const list=store.get(SAVED_KEY)||[];list.splice(i,1);store.set(SAVED_KEY,list);pendingDelete=null}else pendingDelete=i;renderPanel()}
 });
 $('panelBody').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.target.id==='newName'||e.target.id==='newNum')){e.preventDefault();$('panelBody').querySelector('[data-act="addPlayer"]').click()}});
-$('panelBody').addEventListener('change',e=>{const k=e.target.dataset.bind;if(!k)return;S[k]=e.target.value||(['captain','corners','freeKicks','penalties'].includes(k)?null:'');save();
+$('panelBody').addEventListener('change',e=>{const k=e.target.dataset.bind;if(!k)return;if(k.startsWith('role:')){S.roles[k.slice(5)]=e.target.value||null;save();return}S[k]=e.target.value||(k==='captain'?null:'');save();
   if(['team','opp','date','ko','ha'].includes(k)){const keep=document.activeElement&&document.activeElement.id;render();if(keep&&$(keep))$(keep).focus({preventScroll:true})}});
 $('panelBody').addEventListener('input',e=>{const k=e.target.dataset.bind;if(k==='notes'||k==='venue'){S[k]=e.target.value;save()}});
 // Keyboard: Enter/Space on a player acts like a tap.

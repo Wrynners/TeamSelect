@@ -1,7 +1,7 @@
 {
-  "name": "Matchday Line-up",
-  "short_name": "Line-up",
-  "description": "Pick your team, formation and bench, then share the line-up to WhatsApp.",
+  "name": "TeamSelect",
+  "short_name": "TeamSelect",
+  "description": "Pick your team, formation and subs for soccer, Gaelic football or hurling, then share it to WhatsApp.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
