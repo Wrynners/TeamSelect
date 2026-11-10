@@ -1,7 +1,7 @@
 {
   "name": "TeamSelect",
   "short_name": "TeamSelect",
-  "description": "Pick your team, formation and subs for soccer, Gaelic football or hurling, then share it to WhatsApp.",
+  "description": "Pick your team for soccer, Gaelic football or hurling, check who is available, plan fair minutes and share it to WhatsApp.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
